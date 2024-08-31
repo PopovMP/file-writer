@@ -1,6 +1,6 @@
 {
   "name": "@popovmp/file-writer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Provides fire-and-forget IO methods",
   "main": "index.mts",
   "type": "module",
