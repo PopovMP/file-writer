@@ -72,7 +72,7 @@ function doAction(action, filepath, content) {
     busy[filepath] = true;
 
     // Start write operation
-    action(filepath, content, {encoding: "utf8"}, (err) => {
+    action(filepath, content, {encoding: "utf8"}, (/** @type {any} */ err) => {
         // Release busy
         delete busy[filepath];
 

@@ -1,12 +1,17 @@
 {
   "name": "@popovmp/file-writer",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Provides fire-and-forget IO methods",
   "main": "index.mjs",
   "type": "module",
   "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.5.1",
+    "typescript": "^5.5.4"
+  },
   "scripts": {
     "test": "node --test \"./tests/*.test.mjs\"",
+    "validate": "npx tsc -p tsconfig.json",
     "prepublishOnly": "node --test",
     "publishPackage": "npm publish --access=public"
   },
