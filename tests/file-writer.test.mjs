@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { existsSync, readFileSync, unlinkSync } from "node:fs";
 
-import { appendAndForget, writeAndForget } from "../index.mts";
+import { appendAndForget, writeAndForget } from "../index.mjs";
 import { EOL } from "node:os";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,13 +16,13 @@ if (existsSync(filePath)) {
 }
 
 describe("file-writer", () => {
-    const content: string = "Hello World!" + EOL;
+    const content = "Hello World!" + EOL;
 
     describe("writeAndForget", () => {
         it("should write a file", (_t, done) => {
             writeAndForget(filePath, content);
             setTimeout(() => {
-                const fileContent: string = readFileSync(filePath, { encoding: "utf8" });
+                const fileContent = readFileSync(filePath, { encoding: "utf8" });
                 if (fileContent === content) {
                     done();
                 } else {
@@ -35,7 +35,7 @@ describe("file-writer", () => {
             writeAndForget(filePath, "Farewell and thanks for all the fish!" + EOL);
             writeAndForget(filePath, content);
             setTimeout(() => {
-                const fileContent: string = readFileSync(filePath, { encoding: "utf8" });
+                const fileContent = readFileSync(filePath, { encoding: "utf8" });
                 if (fileContent === content) {
                     done();
                 } else {
