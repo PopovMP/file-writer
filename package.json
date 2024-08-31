@@ -13,8 +13,5 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/popovmp/file-writer.git"
-  },
-  "devDependencies": {
-    "@types/node": "^22.5.1"
   }
 }
