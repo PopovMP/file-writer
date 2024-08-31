@@ -30,9 +30,7 @@ export function writeAndForget(filepath: string, content: string): void {
 }
 
 /**
- * Safe writeFile
- *
- * This function prevents race conditions on multiple write operations for the same filename.
+ * It prevents race conditions on multiple write operations for the same filename.
  * It schedules a write operation, if it is requested before the previous one has finished.
  *
  * @throws {NodeJS.ErrnoException}

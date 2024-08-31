@@ -4,7 +4,8 @@
 
 **file-writer** proveds methods for easy fire-and-forget file operations.
 
-It caches the content and repeats teh operation on multiple write requests.
+It prevents race conditions on multiple write operations for the same filename.
+It schedules a write operation, if it is requested before the previous one has finished.
 
 ## Installation
 
