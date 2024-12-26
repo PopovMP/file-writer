@@ -1,13 +1,14 @@
-import {join, dirname} from "node:path";
-import {describe, it}  from "node:test";
-import {fileURLToPath} from "node:url";
-import {EOL}           from "node:os";
+import {join, dirname}                        from "node:path";
+import {describe, it}                         from "node:test";
+import {fileURLToPath}                        from "node:url";
+import {EOL}                                  from "node:os";
+import {setTimeout}                           from "node:timers";
 import {existsSync, readFileSync, unlinkSync} from "node:fs";
 
 import {appendAndForget, writeAndForget} from "../index.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname  = dirname(__filename);
 
 const filePath = join(__dirname, "files", "test.txt");
 

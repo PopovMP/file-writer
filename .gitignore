@@ -3,4 +3,3 @@
 node_modules
 package-lock.json
 tests/files/*.txt
-tsconfig.tsbuildinfo

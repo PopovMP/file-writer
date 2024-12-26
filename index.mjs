@@ -1,20 +1,21 @@
-import {appendFile, writeFile} from "node:fs";
+import {appendFile, writeFile}    from "node:fs";
+import {clearTimeout, setTimeout} from "node:timers";
 
 /**
  * @typedef {Object} QueueJob
- * 
- * @property {NodeJS.Timeout} timeoutID
- * @property {string} filepath
- * @property {string} content
+ *
+ * @property {number}  timeoutId
+ * @property {string}  filepath
+ * @property {string}  content
  * @property {boolean} isAppend
  */
 
 /**
  * @typedef {function} Action
- * 
- * @param {string} filepath
- * @param {string} content
- * @param {{encoding: string}} options
+ *
+ * @param {PathOrFileDescriptor}      filepath
+ * @param {(string|Uint8Array)}       data
+ * @param {WriteFileOptions}          options
  * @param {(err: Error|null) => void} callback
  * @returns {void}
  */
@@ -23,15 +24,15 @@ const TIMEOUT_INTERVAL = 100;
 
 /** @type {Record<string, QueueJob>} */
 const queue = {};
+
 /** @type {Record<string, boolean>} */
 const busy = {};
 
-
 /**
  * Append a text content to a file.
- * 
- * @param {string} filepath
- * @param {string} content
+ *
+ * @param {PathOrFileDescriptor} filepath
+ * @param {string}               content
  * @throws {NodeJS.ErrnoException}
  * @returns {void}
  */
@@ -41,7 +42,7 @@ export function appendAndForget(filepath, content) {
 
 /**
  * Writes a text content to a file.
- * 
+ *
  * @param {string} filepath
  * @param {string} content
  * @throws {NodeJS.ErrnoException}
@@ -54,15 +55,13 @@ export function writeAndForget(filepath, content) {
 /**
  * It prevents race conditions on multiple write operations for the same filename.
  * It schedules a write operation, if it is requested before the previous one has finished.
- * 
- * @param {Action} action
- * @param {string} filepath
- * @param {string} content
+ *
+ * @param {Action}  action
+ * @param {string}  filepath
+ * @param {string}  content
  * @param {boolean} isAppend
- * 
- * @returns {void}
- * 
  * @throws {NodeJS.ErrnoException}
+ * @returns {void}
  */
 function doAction(action, filepath, content, isAppend) {
     // Check is there an ongoing write operation
@@ -71,15 +70,15 @@ function doAction(action, filepath, content, isAppend) {
         const prevQueueJob = queue[filepath];
 
         // Clear previously scheduled timeout job
-        if (prevQueueJob && prevQueueJob.timeoutID) {
-            clearTimeout(prevQueueJob.timeoutID);
+        if (prevQueueJob && prevQueueJob.timeoutId) {
+            clearTimeout(prevQueueJob.timeoutId);
         }
 
         // Schedule a new write operation
-        const timeoutID = setTimeout(repeatWriteFile, TIMEOUT_INTERVAL, filepath);
+        const timeoutId = setTimeout(repeatWriteFile, TIMEOUT_INTERVAL, filepath);
 
         if (prevQueueJob) {
-            prevQueueJob.timeoutID = timeoutID;
+            prevQueueJob.timeoutId = timeoutId;
             if (isAppend) {
                 prevQueueJob.content += content;
             } else {
@@ -87,7 +86,7 @@ function doAction(action, filepath, content, isAppend) {
             }
         } else {
             queue[filepath] = {
-                timeoutID,
+                timeoutId,
                 filepath,
                 content,
                 isAppend,
@@ -111,9 +110,8 @@ function doAction(action, filepath, content, isAppend) {
     });
 
     /**
-     * @param {string} filePath 
-     * 
-     * @return {void}
+     * @param {string} filePath
+     * @returns {void}
      */
     function repeatWriteFile(filePath) {
         /** @type {QueueJob} */
