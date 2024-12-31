@@ -13,9 +13,9 @@ import {clearTimeout, setTimeout} from "node:timers";
 /**
  * @typedef {function} Action
  *
- * @param {PathOrFileDescriptor}      filepath
- * @param {(string|Uint8Array)}       data
- * @param {WriteFileOptions}          options
+ * @param {string}                    filepath
+ * @param {string}                    data
+ * @param {{encoding: "utf8"}}        options
  * @param {(err: Error|null) => void} callback
  * @returns {void}
  */
@@ -31,13 +31,13 @@ const busy = {};
 /**
  * Append a text content to a file.
  *
- * @param {PathOrFileDescriptor} filepath
- * @param {string}               content
+ * @param {string} filepath
+ * @param {string} content
  * @throws {NodeJS.ErrnoException}
  * @returns {void}
  */
 export function appendAndForget(filepath, content) {
-    doAction(appendFile, filepath, content, true);
+    doAction(/** @type {Action} */ (appendFile), filepath, content, true);
 }
 
 /**
@@ -49,7 +49,7 @@ export function appendAndForget(filepath, content) {
  * @returns {void}
  */
 export function writeAndForget(filepath, content) {
-    doAction(writeFile, filepath, content, false);
+    doAction(/** @type {Action} */ (writeFile), filepath, content, false);
 }
 
 /**
@@ -75,7 +75,8 @@ function doAction(action, filepath, content, isAppend) {
         }
 
         // Schedule a new write operation
-        const timeoutId = setTimeout(repeatWriteFile, TIMEOUT_INTERVAL, filepath);
+        //@ts-ignore
+        const timeoutId = /** @type {number} */ (setTimeout(repeatWriteFile, TIMEOUT_INTERVAL, filepath));
 
         if (prevQueueJob) {
             prevQueueJob.timeoutId = timeoutId;

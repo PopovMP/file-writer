@@ -1,0 +1,18 @@
+{
+  "include": [
+    "index.mjs",
+    "tests/*.mjs"
+  ],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "NodeNext",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
+}
