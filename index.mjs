@@ -1,4 +1,4 @@
-import {appendFile, writeFile}    from "node:fs";
+import {appendFile, writeFile, rename} from "node:fs";
 import {clearTimeout, setTimeout} from "node:timers";
 
 /**
@@ -101,12 +101,22 @@ function doAction(action, filepath, content, isAppend) {
     busy[filepath] = true;
 
     // Start write operation
-    action(filepath, content, {encoding: "utf8"}, (/** @type {any} */ err) => {
-        // Release busy
-        delete busy[filepath];
+    const actualPath = isAppend ? filepath : filepath + ".temp";
+    action(actualPath, content, {encoding: "utf8"}, (/** @type {any} */ errAct) => {
+        if (errAct) {
+            delete busy[filepath];
+            throw errAct;
+        }
 
-        if (err) {
-            throw err;
+        if (isAppend) {
+            delete busy[filepath];
+        } else {
+            rename(actualPath, filepath, (/** @type {any} */ errRen) => {
+                delete busy[filepath];
+                if (errRen) {
+                    throw errRen;
+                }
+            });
         }
     });
 
