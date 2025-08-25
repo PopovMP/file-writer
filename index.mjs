@@ -1,5 +1,6 @@
-import {appendFile, writeFile, rename} from "node:fs";
-import {clearTimeout, setTimeout} from "node:timers";
+import { appendFile, writeFile, rename, unlink } from "node:fs";
+import { clearTimeout, setTimeout } from "node:timers";
+import process from "node:process";
 
 /**
  * @typedef {Object} QueueJob
@@ -116,6 +117,7 @@ function doAction(action, filepath, content, isAppend) {
             rename(actualPath, filepath, (/** @type {any} */ errRen) => {
                 delete busy[filepath];
                 if (errRen) {
+                    unlink(actualPath, () => {});
                     throw errRen;
                 }
             });
