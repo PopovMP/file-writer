@@ -1,8 +1,8 @@
 {
   "include": [
-    "index.mjs",
-    "tests/*.mjs"
-  ],
+    "index.js",
+    "tests/*.js"
+, "tests/file-writer.test.js"  ],
   "compilerOptions": {
     "target": "ESNext",
     "module": "NodeNext",

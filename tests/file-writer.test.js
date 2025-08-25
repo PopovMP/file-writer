@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { EOL } from "node:os";
 import { setTimeout } from "node:timers";
 import { existsSync, readFileSync, unlinkSync, readdirSync, mkdirSync, rmSync } from "node:fs";
-import { appendAndForget, writeAndForget, setErrorHandler } from "../index.mjs";
+import { appendAndForget, writeAndForget, setErrorHandler } from "../index.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
