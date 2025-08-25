@@ -46,6 +46,14 @@ export function setErrorHandler(handler) {
 }
 
 /**
+ * Check if there are ongoing write operations.
+ * @returns {boolean}
+ */
+export function isWriterBusy() {
+    return Object.keys(busy).length > 0;
+}
+
+/**
  * Append a text content to a file.
  *
  * @param {string} filepath

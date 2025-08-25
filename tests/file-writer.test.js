@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { EOL } from "node:os";
 import { setTimeout } from "node:timers";
 import { existsSync, readFileSync, unlinkSync, readdirSync, mkdirSync, rmSync } from "node:fs";
-import { appendAndForget, writeAndForget, setErrorHandler } from "../index.js";
+import { appendAndForget, writeAndForget, setErrorHandler, isWriterBusy } from "../index.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -166,5 +166,16 @@ describe("errors and concurrency", () => {
             if (b !== expB) return done(new Error(`B mismatch. Expected:\n${expB}\nGot:\n${b}`));
             done();
         }, 800);
+    });
+});
+
+describe("isBusy", () => {
+    it("returns true when a write is in progress", (_t, done) => {
+        writeAndForget(filePath, "data");
+        if (!isWriterBusy()) return done(new Error("Expected isWriterBusy() to be true"));
+        setTimeout(() => {
+            if (isWriterBusy()) return done(new Error("Expected isWriterBusy() to be false"));
+            done();
+        }, 100);
     });
 });

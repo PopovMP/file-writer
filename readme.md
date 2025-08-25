@@ -37,12 +37,28 @@ for (let i = 0; i < 1000; i++) {
 The lib logs the errors to the console by default. However, we can provide a custom error handler.
 
 ```javascript
-import { errorHandler, appendAndForget } from "@popovmp/file-writer";
+import { errorHandler, writeAndForget } from "@popovmp/file-writer";
 
 function errorHandler(err, filepath, stage) {
     console.error(`[file-writer] ${stage} error for ${filepath}:`, err);
 }
 
 setErrorHandler(errorHandler);
-appendAndForget("hello.txt", "Hello, World!\n");
+writeAndForget("hello.txt", "Hello, World!\n");
+```
+
+## Chekc is busy
+
+**file-writer** provides functionality to check if there are ongoing operations.
+
+```javascript
+
+import { writeAndForget, isWriterBusy } from "@popovmp/file-writer";
+
+writeAndForget("hello.txt", "Hello, World!\n");
+console.log( isWriterBusy() ); // => true
+
+setTimeout(() => {
+    console.log( isWriterBusy() ); // => false
+}, 100);
 ```

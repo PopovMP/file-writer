@@ -11,6 +11,12 @@ declare module "@popovmp/file-writer" {
     export function setErrorHandler(handler: (err: Error, filepath: string, stage: string) => void): void;
 
     /**
+     * Check if there are ongoing write operations.
+     * @returns {boolean}
+     */
+    export function isWriterBusy(): boolean;
+
+    /**
      * Append a text content to a file.
      *
      * @param { string} filepath
