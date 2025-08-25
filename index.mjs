@@ -82,9 +82,12 @@ function doAction(action, filepath, content, isAppend) {
         if (prevQueueJob) {
             prevQueueJob.timeoutId = timeoutId;
             if (isAppend) {
+                // Always append content (even if it was a "write" operation before)
                 prevQueueJob.content += content;
             } else {
-                prevQueueJob.content = content;
+                // Overwrite content even if it was an "append" operation before
+                prevQueueJob.content  = content;
+                prevQueueJob.isAppend = isAppend; // Always overwrite isAppend flag
             }
         } else {
             queue[filepath] = {

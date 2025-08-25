@@ -1,11 +1,11 @@
-import {join, dirname}                        from "node:path";
-import {describe, it}                         from "node:test";
-import {fileURLToPath}                        from "node:url";
-import {EOL}                                  from "node:os";
-import {setTimeout}                           from "node:timers";
-import {existsSync, readFileSync, unlinkSync} from "node:fs";
+import { join, dirname }                        from "node:path";
+import { describe, it }                         from "node:test";
+import { fileURLToPath }                        from "node:url";
+import { EOL }                                  from "node:os";
+import { setTimeout }                           from "node:timers";
+import { existsSync, readFileSync, unlinkSync } from "node:fs";
 
-import {appendAndForget, writeAndForget} from "../index.mjs";
+import { appendAndForget, writeAndForget } from "../index.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -62,6 +62,33 @@ describe("file-writer", () => {
             setTimeout(() => {
                 const fileContent = readFileSync(filePath, { encoding: "utf8" });
                 const expected = textLine + textLine + textLine + textLine + textLine;
+                if (fileContent === expected) {
+                    done();
+                } else {
+                    done(new Error(`Expected ${expected}, got ${fileContent}`));
+                }
+            }, 1000);
+        });
+    });
+
+    describe("Mixed multiple writes and  appends", () => {
+        it("should execute multiple write and append operations", (_t, done) => {
+            writeAndForget (filePath, "Line 1" + EOL);
+            writeAndForget (filePath, "Line 2" + EOL);
+            writeAndForget (filePath, "Line 3" + EOL);
+            appendAndForget(filePath, "Line 4" + EOL);
+            appendAndForget(filePath, "Line 5" + EOL);
+            writeAndForget (filePath, "Line 6" + EOL); // This write overwrites the previous lines
+            appendAndForget(filePath, "Line 7" + EOL);
+            appendAndForget(filePath, "Line 8" + EOL);
+            appendAndForget(filePath, "Line 9" + EOL);
+
+            setTimeout(() => {
+                const fileContent = readFileSync(filePath, { encoding: "utf8" });
+                const expected = "Line 6" + EOL +
+                                 "Line 7" + EOL +
+                                 "Line 8" + EOL +
+                                 "Line 9" + EOL;
                 if (fileContent === expected) {
                     done();
                 } else {
