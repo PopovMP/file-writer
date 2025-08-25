@@ -101,7 +101,9 @@ function doAction(action, filepath, content, isAppend) {
     busy[filepath] = true;
 
     // Start write operation
-    const actualPath = isAppend ? filepath : filepath + ".temp";
+    const tmpSuffix  = `.tmp-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const actualPath = isAppend ? filepath : `${filepath}${tmpSuffix}`;
+
     action(actualPath, content, {encoding: "utf8"}, (/** @type {any} */ errAct) => {
         if (errAct) {
             delete busy[filepath];
