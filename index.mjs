@@ -4,12 +4,12 @@ import process from "node:process";
 import console from "node:console";
 
 /**
- * @typedef {Object} QueueJob
+ * @typedef { Object } QueueJob
  *
- * @property {number}  timeoutId
- * @property {string}  filepath
- * @property {string}  content
- * @property {boolean} isAppend
+ * @property { ReturnType<typeof setTimeout> } timeoutId
+ * @property { string }                        filepath
+ * @property { string }                        content
+ * @property { boolean }                       isAppend
  */
 
 /**
@@ -92,8 +92,7 @@ function doAction(action, filepath, content, isAppend) {
         }
 
         // Schedule a new write operation
-        //@ts-ignore
-        const timeoutId = /** @type {number} */ (setTimeout(repeatWriteFile, TIMEOUT_INTERVAL, filepath));
+        const timeoutId = setTimeout(repeatWriteFile, TIMEOUT_INTERVAL, filepath);
 
         if (prevQueueJob) {
             prevQueueJob.timeoutId = timeoutId;
