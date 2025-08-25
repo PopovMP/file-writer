@@ -123,7 +123,13 @@ function doAction(action, filepath, content, isAppend) {
     const tmpSuffix  = `.tmp-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const actualPath = isAppend ? filepath : `${filepath}${tmpSuffix}`;
 
-    action(actualPath, content, {encoding: "utf8"}, (/** @type {any} */ errAct) => {
+    action(actualPath, content, {encoding: "utf8"}, onActionReady);
+
+    /**
+     * @param { Error } errAct
+     * @returns { void }
+     */
+    function onActionReady(errAct) {
         if (errAct) {
             delete busy[filepath];
             onError(/** @type {Error} */(errAct), filepath, "write");
@@ -142,7 +148,7 @@ function doAction(action, filepath, content, isAppend) {
                 }
             });
         }
-    });
+    }
 
     /**
      * @param {string} filePath
@@ -157,6 +163,8 @@ function doAction(action, filepath, content, isAppend) {
 
         delete queue[filePath];
 
-        doAction(action, job.filepath, job.content, job.isAppend);
+        // Use the correct action based on the queued job type
+        const newAction = job.isAppend ? appendFile : writeFile;
+        doAction(newAction, job.filepath, job.content, job.isAppend);
     }
 }
