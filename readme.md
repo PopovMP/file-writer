@@ -32,4 +32,17 @@ for (let i = 0; i < 1000; i++) {
 }
 ```
 
-It throws `NodeJS.ErrnoException`.
+## Error handling
+
+The lib logs the errors to the console by default. However, we can provide a custom error handler.
+
+```javascript
+import { errorHandler, appendAndForget } from "@popovmp/file-writer";
+
+function errorHandler(err, filepath, stage) {
+    console.error(`[file-writer] ${stage} error for ${filepath}:`, err);
+}
+
+setErrorHandler(errorHandler);
+appendAndForget("hello.txt", "Hello, World!\n");
+```
