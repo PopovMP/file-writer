@@ -1,6 +1,7 @@
 import { appendFile, writeFile, rename, unlink } from "node:fs";
 import { clearTimeout, setTimeout } from "node:timers";
 import process from "node:process";
+import console from "node:console";
 
 /**
  * @typedef {Object} QueueJob
@@ -28,6 +29,21 @@ const queue = {};
 
 /** @type {Record<string, boolean>} */
 const busy = {};
+
+// Pluggable error reporting
+/** @type {(err: Error, filepath: string, stage: "write"|"rename") => void} */
+let onError = (err, filepath, stage) => {
+    // Default: log to stderr. Consumers can override via setErrorHandler().
+    console.error(`[file-writer] ${stage} error for ${filepath}:`, err);
+};
+
+/**
+ * Override module-level error reporting.
+ * @param {(err: Error, filepath: string, stage: "write"|"rename") => void} handler
+ */
+export function setErrorHandler(handler) {
+    onError = handler;
+}
 
 /**
  * Append a text content to a file.
@@ -111,7 +127,8 @@ function doAction(action, filepath, content, isAppend) {
     action(actualPath, content, {encoding: "utf8"}, (/** @type {any} */ errAct) => {
         if (errAct) {
             delete busy[filepath];
-            throw errAct;
+            onError(/** @type {Error} */(errAct), filepath, "write");
+            return;
         }
 
         if (isAppend) {
@@ -121,7 +138,8 @@ function doAction(action, filepath, content, isAppend) {
                 delete busy[filepath];
                 if (errRen) {
                     unlink(actualPath, () => {});
-                    throw errRen;
+                    onError(/** @type {Error} */(errRen), filepath, "rename");
+                    return;
                 }
             });
         }
