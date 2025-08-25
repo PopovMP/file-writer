@@ -92,7 +92,7 @@ function doAction(action, filepath, content, isAppend) {
         }
 
         // Schedule a new write operation
-        const timeoutId = setTimeout(repeatWriteFile, TIMEOUT_INTERVAL, filepath);
+        const timeoutId = setTimeout(scheduleAction, TIMEOUT_INTERVAL, filepath);
 
         if (prevQueueJob) {
             prevQueueJob.timeoutId = timeoutId;
@@ -138,6 +138,8 @@ function doAction(action, filepath, content, isAppend) {
 
         if (isAppend) {
             delete busy[filepath];
+
+            scheduleAction(filepath);
         } else {
             rename(actualPath, filepath, (/** @type {any} */ errRen) => {
                 delete busy[filepath];
@@ -146,25 +148,23 @@ function doAction(action, filepath, content, isAppend) {
                     onError(/** @type {Error} */(errRen), filepath, "rename");
                     return;
                 }
+
+                scheduleAction(filepath)
             });
         }
     }
 
     /**
-     * @param {string} filePath
-     * @returns {void}
+     * @param { string } filepath
+     * @returns { void }
      */
-    function repeatWriteFile(filePath) {
+    function scheduleAction(filepath) {
         /** @type {QueueJob} */
-        const job = queue[filePath];
-
-        // Necessery check because the function is called asynchronously from setTimeout
-        if (!job) return;
-
-        delete queue[filePath];
-
-        // Use the correct action based on the queued job type
-        const newAction = job.isAppend ? appendFile : writeFile;
-        doAction(newAction, job.filepath, job.content, job.isAppend);
+        const next = queue[filepath];
+        if (next) {
+            clearTimeout(next.timeoutId);
+            delete queue[filepath];
+            doAction(next.isAppend ? appendFile : writeFile, next.filepath, next.content, next.isAppend);
+        }
     }
 }
