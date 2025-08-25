@@ -96,13 +96,17 @@ function doAction(action, filepath, content, isAppend) {
 
         if (prevQueueJob) {
             prevQueueJob.timeoutId = timeoutId;
+            // If a write is queued and an append arrives,
+            // the final operation should still be a write (with combined content),
+            // not an append to the existing file.
             if (isAppend) {
-                // Always append content (even if it was a "write" operation before)
+                // Accumulate appends, but do NOT flip a pending write into append
                 prevQueueJob.content += content;
+                // keep prevQueueJob.isAppend as-is
             } else {
-                // Overwrite content even if it was an "append" operation before
+                // Last write wins: replace content and ensure it's a write
                 prevQueueJob.content  = content;
-                prevQueueJob.isAppend = isAppend; // Always overwrite isAppend flag
+                prevQueueJob.isAppend = false;
             }
         } else {
             queue[filepath] = {
@@ -149,21 +153,21 @@ function doAction(action, filepath, content, isAppend) {
                     return;
                 }
 
-                scheduleAction(filepath)
+                scheduleAction(filepath);
             });
         }
     }
 
     /**
-     * @param { string } filepath
+     * @param { string } filePath
      * @returns { void }
      */
-    function scheduleAction(filepath) {
+    function scheduleAction(filePath) {
         /** @type {QueueJob} */
-        const next = queue[filepath];
+        const next = queue[filePath];
         if (next) {
             clearTimeout(next.timeoutId);
-            delete queue[filepath];
+            delete queue[filePath];
             doAction(next.isAppend ? appendFile : writeFile, next.filepath, next.content, next.isAppend);
         }
     }
