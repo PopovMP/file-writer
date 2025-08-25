@@ -131,6 +131,10 @@ function doAction(action, filepath, content, isAppend) {
     function repeatWriteFile(filePath) {
         /** @type {QueueJob} */
         const job = queue[filePath];
+
+        // Necessery check because the function is called asynchronously from setTimeout
+        if (!job) return;
+
         delete queue[filePath];
 
         doAction(action, job.filepath, job.content, job.isAppend);
